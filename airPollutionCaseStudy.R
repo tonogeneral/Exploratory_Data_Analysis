@@ -1,4 +1,4 @@
-#archivo de prueba 222
+#archivo de prueba
 
 data <- read.table("./data/RD_501_88101_1999-0.txt", header = FALSE, sep = "|",comment.char = "#",na.strings = "")
 dim(data)
