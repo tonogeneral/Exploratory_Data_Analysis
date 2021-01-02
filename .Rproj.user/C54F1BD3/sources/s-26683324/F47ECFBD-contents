@@ -1,0 +1,130 @@
+library(ggplot2)
+str(mpg)
+
+#agrega colores según la tracción
+qplot(displ,hwy, data = mpg,color = drv)
+
+
+#agrega gráfico de tendencia
+
+qplot(displ,hwy, data = mpg,geom = c("point","smooth"))
+
+
+#Histrogram with ggplot
+
+qplot(hwy, data = mpg,fill = drv)
+
+
+#GRÁFICOS CON PANELES O FACETAS EN GGPLO
+qplot(displ,hwy, data = mpg,facets = .~drv)
+
+qplot(hwy, data = mpg,facets = drv~.,binwidth = 2)
+
+
+# DATASETS ESTUDIO PREVALENCIA ASMA JOHN HOPKINS
+library(datasets)
+load("./data/maacs.rda")
+str(maacs)
+
+
+qplot(log(eno),data = maacs)
+qplot(log(eno),data = maacs,fill = mopos)
+
+#Geom density
+qplot(log(eno),data = maacs,geom = "density")
+# Gráfico lineal separado por examen de alergia a ratón
+qplot(log(eno),data = maacs,geom = "density",color = mopos)
+
+
+#scatterplot entre niveles de partículas pm25 y niveles de óxido nitroso
+
+qplot(log(pm25),log(eno),data = maacs)
+
+#Mismo gráfico diferenciado por presencia de alergia
+qplot(log(pm25),log(eno),data = maacs, shape = mopos)
+qplot(log(pm25),log(eno),data = maacs, color = mopos)
+
+
+#Scatterplot: eNO vs PM25
+qplot(log(pm25),log(eno),data = maacs, color = mopos) + geom_smooth(method = "lm")
+
+#Separadao en facetas
+qplot(log(pm25),log(eno),data = maacs, color = mopos, facets = .~ mopos) + geom_smooth(method = "lm")
+
+
+
+bmi <- read.csv("./data/BMI.csv",header = TRUE, sep = ",")
+str(bmi)
+
+
+
+#Construyendo grafos en base a capas
+head(bmi[,1:3])
+
+g <- ggplot(bmi,aes(logpm25,NocturnalSympt))
+summary(g)
+str(g)
+
+p <- g + geom_point()
+print(p)
+
+#agregamos línea de tendencia
+g + geom_point() + geom_smooth()
+
+#agregamos línea de tendencia en modo linel (linear model)
+g + geom_point() + geom_smooth(method = "lm")
+
+
+#agregamos facetas por peso (normal y sobrepeso)
+
+g + geom_point() + facet_grid(.~ bmicat)  +geom_smooth(method = "lm")
+
+#puntos geométricos color azul
+g + geom_point(color = "steelblue",size = 4,alpha = 1/2)
+
+#puntos geométricos con data variable de color
+g + geom_point(aes(color = bmicat),size = 4,alpha = 1/2)
+
+#modificación de etiquetas de columnas
+g + geom_point(aes(color = bmicat)) + labs(title = "MAACS Cohort") + labs(x = expression("log" * PM[2.5]),
+                    y = "Nocturnal syptoms")
+
+#Customizando la suavidad de tramas con lm (regresión lineal)
+g + geom_point(aes(color = bmicat),size = 2,alpha = 1/2) + 
+  geom_smooth(size = 4, linetype = 3, method = "lm", se = FALSE)
+
+
+#Cambiar el tema general
+g + geom_point(aes(color = bmicat)) + theme_bw(base_family = "Times")
+
+
+#Gráficos cuyos datos exceden los límites de los datos normales del gráfico
+
+testdat <- data.frame(x = 1:100, y = rnorm(100))
+testdat[50,2] <- 100 #Fuera de rango
+plot(testdat$x,testdat$y, type = "l", ylim = c(-3,3))
+
+#ggplot ajusta los márgenes
+g <- ggplot(testdat,aes(x = x, y = y)) + geom_line()
+
+#ggplor desestima valores
+g + geom_line() + ylim(-3,3)
+
+#ggplot los incluye pero fuera de rango
+g + geom_line() + coord_cartesian(ylim = c(-3,3))
+
+
+#Cortando datos por terciles
+cutpoints <- quantile(bmi$logno2_new,seq(0,1,length = 4),na.rm = TRUE)
+
+#corta la data en deciles y crea una nueva variable
+bmi$no2dec <- cut(bmi$logno2_new,cutpoints)
+
+#ve los niveles de la nueva variable creada
+levels(bmi$no2dec)
+
+
+#Seteo el data frame
+g <- ggplot(bmi,aes(logpm25,NocturnalSympt))
+
+g + geom_point(alpha = 1/3) + facet_wrap(bmicat ~ no2dec,nrow = 2, ncol = 4) + geom_smooth(method = "lm", se = FALSE, col = "steelblue") + theme_bw(base_family = "Avenir", base_size = 10) + labs(x = expression("log" * PM[2.5])) + labs(y = "Nocturnal Syptoms") + labs(title = "MAACS Cohort")
