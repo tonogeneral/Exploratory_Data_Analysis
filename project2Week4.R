@@ -23,7 +23,7 @@ head(SCC)
 sum(NEI$Emissions, na.rm = TRUE)
 
 emYear <- with(NEI, tapply(Emissions, year,sum, na.rm = T))
-emYear <- as.Date(as.character(emYear),"%Y%m%d")
+#emYear <- as.Date(as.character(emYear),"%Y%m%d")
 str(emYear)
 emYear
 
@@ -44,15 +44,46 @@ emi$pm25 <- as.numeric(emi$pm25)/10^6
 range(emi$pm25, na.rm = T)
 rng <- range(emi$pm25, na.rm = T)
 
-plot(emi$year, emi$pm25, main = "Total PM 2.5  emissions all Sources",
-     xlab = "Year", ylab = "PM2.5 Million of tons", type = "b", lty = 1, lwd = 1, col = "red",xlim = c(1999,2008), ylim = rng) 
+plot(emi$year, emi$pm25, main = "Total PM 2.5  emissions all sources",
+     xlab = "Year", ylab = "PM2.5 Million of tons", type = "o", lty = 1, lwd = 1, col = "red",xlim = c(1999,2008), ylim = rng) 
 #and lines(x, y, lty = 2, lwd = 1)
 
 dev.copy(png,file = "plot1.png")
 dev.off()
 
 
+# Have total emissions from PM2.5 decreased in the Baltimore City, Maryland 
+# (fips == "24510") from 1999 to 2008? Use the base plotting system to make a plot
+# answering this question.
 
 
+baltimore <- subset(NEI, fips == "24510")
+dim(baltimore)
+str(baltimore)
+
+
+
+
+
+sum(baltimore$Emissions, na.rm = TRUE)
+
+baltYear <- with(baltimore, tapply(Emissions, year,sum, na.rm = T))
+
+names(baltYear)
+
+emiBalti <- data.frame(year = names(baltYear), pm25 = baltYear)
+emiBalti$year <- as.numeric(emiBalti$year)
+emiBalti$pm25 <- as.numeric(emiBalti$pm25)
+
+
+
+rngBalti <- range(emiBalti$pm25, na.rm = T)
+
+plot(emiBalti$year, emiBalti$pm25, main = "Total PM 2.5  emissions Baltimore",
+     xlab = "Year", ylab = "PM2.5 Tons", type = "o", lty = 1, lwd = 1, col = "red",xlim = c(1999,2008), ylim = rngBalti) 
+#and lines(x, y, lty = 2, lwd = 1)
+
+dev.copy(png,file = "plot2.png")
+dev.off()
 
 
